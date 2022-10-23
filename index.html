@@ -179,25 +179,29 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.m
       $('#description').hide().fadeIn(500);
       $('#links').hide().delay(100).fadeIn(1500);
       $('#scene-container').hide().delay(1500).fadeIn(1000);
-      $('#instructions').hide().delay(1500).fadeIn(1000);
+      $('#instructions').delay(1500).fadeOut(1000);
     })
   </script>
   <style>
     * {
       font-family: HelveticaNeue;
-      font-size: 18px;
-      line-height: 26px;
       text-decoration: none;
     }
     #inner {
       /* width: 50%; */
       margin: 20vh 25vw 0 25vw;
+      line-height: 1em;
+      font-size: 1em;
     }
     #header {
       font-family: 'HelveticaNeue-Light';
       font-weight: 100;
-      font-size: 36px;
+      font-size: 2.5em;
       margin: 20 0;
+    }
+    #links {
+      font-size: 1.2em;
+      line-height: 1.3em;
     }
     a:hover {
       text-decoration: underline;
@@ -208,7 +212,9 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.m
       color: grey;
     }
     #description {
+      font-size: 1.2em;
       color: rgba(0,0,0,0.8);
+      line-height: 2.1em;
     }
     #github-icon {
       filter: invert(50%) sepia(0%) saturate(100%) hue-rotate(0deg) brightness(100%) contrast(100%);
@@ -217,7 +223,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.m
       filter: invert(0%) sepia(0%) saturate(100%) hue-rotate(0deg) brightness(100%) contrast(100%);
     }
     #socials {
-      margin-top: 20;
+      margin: 20 0;
     }
     .dg {
       visibility: hidden;
@@ -243,6 +249,7 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.m
       bottom: 140px;
       color: #d9d9d9;
       text-align: center;
+      font-size: 1em;
     }
 
     @media only screen and (max-width: 600px) {
