@@ -1,20 +1,294 @@
-<style>
-* {font-family: HelveticaNeue}
-#inner {
-  width: 50%;
-  margin: 0 auto;
-}
-</style>
+<html>
+<head>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.9/build/dat.gui.min.js"></script>
+<script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdnjs.cloudflare.com/ajax/libs/three.js/0.145.0/three.module.js",
+      "dat": "https://cdn.jsdelivr.net/npm/dat.gui@0.7.9/build/dat.gui.module.js"
+    }
+  }
+</script> 
+  
+  <script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.module.js';
+  
+  import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.145.0/examples/jsm/controls/OrbitControls.js';
+  import {GUI} from 'https://cdn.jsdelivr.net/npm/dat.gui@0.7.9/build/dat.gui.module.js';
+  import { GLTFLoader } from "https://cdn.jsdelivr.net/npm/three@0.145.0/examples/jsm/loaders/GLTFLoader.js";
+  
+  const loader = new GLTFLoader()
+  
+  const gui = new GUI()
+  
+  // Get a reference to the container element that will hold our scene
+  const container = document.querySelector('#scene-container');
+  
+  // create a Scene
+  const scene = new THREE.Scene();
+  
+  // Set the background color
+  // scene.background = new THREE.Color(0x000000);
+  
+  // Create a camera
+  const fov = 35; // AKA Field of View
+  const aspect = container.clientWidth / container.clientHeight;
+  const near = 0.1; // the near clipping plane
+  const far = 100; // the far clipping plane
+  
+  const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+  
+  // every object is initially created at ( 0, 0, 0 )
+  // move the camera back so we can view the scene
+  // camera.position.set(0, 10, 2);
+  
+  //Create a sphere that cast shadows (but does not receive them)
+  // const sphereGeometry = new THREE.SphereGeometry( 7, 100, 100);
+  // const sphereMaterial = new THREE.MeshStandardMaterial( { color: 0x0ffff0 } );
+  // const sphere = new THREE.Mesh( sphereGeometry, sphereMaterial );
+  // sphere.castShadow = true; //default is false
+  // sphere.receiveShadow = false; //default
+  // scene.add( sphere );
+  
+  let pointLight = new THREE.PointLight( 0xffffff, 40, 0 );
+  // pointLight.position.set(0,8,0);
+  // pointLight.castShadow = true; 
+  //Set up shadow properties for the light
+  // pointLight.shadow.mapSize.width = 512; // default
+  // pointLight.shadow.mapSize.height = 512; // default
+  // pointLight.shadow.camera.near = 0.5; // default
+  // pointLight.shadow.camera.far = 500; // default
+  
+  // camera.add(pointLight);
+  camera.add(pointLight);
+  scene.add(camera)
+  
+  const planeGeo = new THREE.PlaneGeometry( 5, 5);
+  const planeMat = new THREE.MeshStandardMaterial( {color: 0xf0f0f0, side: THREE.DoubleSide} );
+  const plane = new THREE.Mesh( planeGeo, planeMat );
+  plane.rotation.x += Math.PI/2
+  plane.position.y -= 2
+  plane.receiveShadow = true;
+  plane.castShadow = true;
+  scene.add( plane );
+  
+  // const helper = new THREE.CameraHelper( pointLight.shadow.camera );
+  // scene.add( helper );
+  
+  // create a geometry
+  const geometry = new THREE.BoxGeometry(2,2,2);
+  
+  // create a default (white) Basic material
+  // const material = new THREE.MeshStandardMaterial();
+  
+  // create a Mesh containing the geometry and material
+  // const cube = new THREE.Mesh(geometry, material);
+  
+  let mixer;
+  
+  // add the mesh to the scene
+  // scene.add(cube);
+  // const animationsFolder = gui.addFolder('Animations')
+  loader.load( './trooper.gltf', function ( gltf ) {
+  
+    // let textureLoader = new TextureLoader()
+    // textureLoader.load('trooper.png', (texture) => {
+    //   console.log(1, err);
+    // })
+    gltf.scene.position.x = 0
+    gltf.scene.position.y = -2
+    gltf.scene.position.z = 0
+    gltf.scene.castShadow = true; //default is false
+  
+  
+    camera.position.set(0,12,5);
+    camera.lookAt(0,0,0)
+  
+    // Create an AnimationMixer, and get the list of AnimationClip instances
+    mixer = new THREE.AnimationMixer( gltf.scene );
+  
+    const clips = gltf.animations;
+    console.log(clips);
+  
+    // Play a specific animation
+    const clip = THREE.AnimationClip.findByName( clips, 'mixamo.com' );
+    const action = mixer.clipAction( clip );
+    action.play();
+  
+    // Play all animations
+    clips.forEach( function ( clip ) {
+      mixer.clipAction( clip ).play();
+    } );
+  
+    scene.add( gltf.scene );
+  
+      // function animate() {
+      //   requestAnimationFrame( animate );
+      //   renderer.render( scene, camera );
+      // };
+      // animate();
+  })
+  
+  // scene.add( light );
+  
+  // create the renderer
+  const renderer = new THREE.WebGLRenderer({ alpha: true });
+  // renderer.setClearColorHex( 0x000000, 1 );
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
+  
+  const controls = new OrbitControls( camera, renderer.domElement );
+  controls.enableZoom = false;
+  controls.enableDamping = true;
+  controls.dampingFactor = 0.01
+  // controls.maxDistance = 10
+  // controls.minDistance = 7
+  controls.maxPolarAngle = 1.4
+  controls.minPolarAngle = 1.2
+  
+  
+  controls.update();
+  
+  renderer.physicallyCorrectLights = true;
+  
+  // next, set the renderer to the same size as our container element
+  renderer.setSize(container.clientWidth, container.clientHeight);
+  
+  // finally, set the pixel ratio so that our scene will look good on HiDPI displays
+  renderer.setPixelRatio(window.devicePixelRatio);
+  
+  // add the automatically created <canvas> element to the page
+  container.append(renderer.domElement);
+  
+  // render, or 'create a still image', of the scene
+  renderer.render(scene, camera);
+        var clock = new THREE.Clock();
+        function animate() {
+          if ( mixer ) mixer.update( clock.getDelta() );
+          requestAnimationFrame( animate );
+          controls.update();
+          renderer.render( scene, camera );
+        };
+        animate();
+  </script>
+
+  <script>
+    $('body').ready((e) => {
+      $('#description').hide().fadeIn(500);
+      $('#links').hide().delay(100).fadeIn(1500);
+      $('#scene-container').hide().delay(1500).fadeIn(1000);
+      $('#instructions').hide().delay(1500).fadeIn(1000);
+    })
+  </script>
+  <style>
+    * {
+      font-family: HelveticaNeue;
+      font-size: 18px;
+      line-height: 26px;
+      text-decoration: none;
+    }
+    #inner {
+      /* width: 50%; */
+      margin: 20vh 25vw 0 25vw;
+    }
+    #header {
+      font-family: 'HelveticaNeue-Light';
+      font-weight: 100;
+      font-size: 36px;
+      margin: 20 0;
+    }
+    a:hover {
+      text-decoration: underline;
+      color: black;
+    }
+    a {
+      text-decoration: underline;
+      color: grey;
+    }
+    #description {
+      color: rgba(0,0,0,0.8);
+    }
+    #github-icon {
+      filter: invert(50%) sepia(0%) saturate(100%) hue-rotate(0deg) brightness(100%) contrast(100%);
+    }
+    #github-icon:hover {
+      filter: invert(0%) sepia(0%) saturate(100%) hue-rotate(0deg) brightness(100%) contrast(100%);
+    }
+    #socials {
+      margin-top: 20;
+    }
+    .dg {
+      visibility: hidden;
+    }
+    #scene-container {
+      position: absolute;
+      height: 40vh;
+      width: 50vw;
+      left: 25vw;
+      bottom:0px;
+      /* bottom: 190px; */
+      /* left: calc( 50vw - 200px ); */
+      padding: 0px;
+      margin:0px;
+    }
+    canvas {
+      height: 0px;
+    }
+    #instructions {
+      position: absolute;
+      width: 50vw;
+      left: 25vw;
+      bottom: 140px;
+      color: #d9d9d9;
+      text-align: center;
+    }
+
+    @media only screen and (max-width: 600px) {
+      #inner {
+      margin: 10vh 10vw 0 10vw;
+    }
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+    #scene-container {
+      position: absolute;
+      height: 40vh;
+      width: 100vw;
+      left: 0px;
+    }
+  }
+    </style>
+</head>
+<body>
+
 <div id="inner">
-<h2>Philipp Eibl</h2>
-<br/>
+<div id='header'>Philipp Eibl</div>
+<p id="description">I study Computer Science at the University of Toronto.</p>
+<div id="links">
+
+<div id='socials'>
+  <a href="https://www.linkedin.com/in/philippeibl"><svg xmlns="http://www.w3.org/2000/svg" height="32" width="32" viewBox="0 0 24 24" fill="currentColor" focusable="false">
+    <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"></path>
+  </svg></a>
+  <a href="https://github.com/philippnoah/"><svg id="github-icon" aria-hidden="true" viewBox="0 0 17.5 17.5" version="1.1" height="30" width="30" data-view-component="true" >
+    <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path>
+  </svg></a>
+</div>
 <a href="./resume.pdf">Resume</a>
-<br/>
-<a href="https://www.linkedin.com/in/philippeibl">LinkedIn</a>
-<br/>
-<a href="https://github.com/philippnoah/">Github</a>
 <br/>
 <a href="./word_embeddings.pdf">Word embeddings paper</a>
 <br/>
 <a href="#">Mutual information paper</a>
 </div>
+</div>
+<div id='instructions'>
+  Move the trooper with your mouse
+</div>
+<div id="scene-container">
+  <canvas>
+</div>
+
+</body></html>
