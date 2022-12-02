@@ -175,14 +175,18 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.m
   </script>
 
   <script>
+
     $('body').ready((e) => {
       $('#description').hide().fadeIn(500);
       $('#links').hide().delay(100).fadeIn(1500);
       $('#scene-container').hide().delay(1500).fadeIn(1000);
-      $('#instructions').delay(1500).fadeOut(1000);
+      $('#instructions').delay(1500).fadeOut(3000);
     })
   </script>
   <style>
+    #description, #links {
+      display: none;
+    }
     * {
       font-family: HelveticaNeue;
       text-decoration: none;
@@ -321,6 +325,8 @@ import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.145.0/build/three.m
 <a href="./word_embeddings.pdf">Word embeddings paper</a>
 <br/>
 <a href="#">Mutual information paper</a>
+<br/>
+<a href="plants.html">A website about plants that GPT3 generated for me</a>
 </div>
 </div>
 <div id='instructions'>
